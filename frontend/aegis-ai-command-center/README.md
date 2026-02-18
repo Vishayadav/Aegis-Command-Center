@@ -65,20 +65,23 @@ This project is built with:
 
 Frontend and backend must both be deployed; they communicate over the network.
 
-1. **(Optional)** The frontend is capable of running entirely on its own
-   with hardcoded telemetry; no backend is required.  This is useful for
-   quick demos or when deploying to Vercel without an API.  See
-   `src/pages/Index.tsx` (static `STATIC_` constants).
-2. **Deploy the Python backend** somewhere reachable only if you want live
-   simulation or want to reuse the risk engine.
-   It can be hosted on a VPS, Heroku, Railway, or as a serverless function.
-   Make sure CORS is enabled (FastAPI already allows `*`).  Note the base URL
-   (for example `https://api.example.com`).
+1. **Dynamic front‑end simulation** is the default behaviour: the app
+   generates fresh, pseudo‑random ML/LLM telemetry every few seconds and
+   responds to the four toggles in the sidebar (ML Drift, Hallucination,
+   High Token Cost, Safety Incident).  This gives the appearance of a
+   production observability dashboard at all times without any network calls.
+   The logic lives in `src/lib/metricsGenerator.ts` and is invoked from
+   `Index.tsx`.
+2. **(Optional)** Deploy the Python backend only if you want a server‑side
+   analogue or wish to extend the risk engine.  It can run on a VPS, Heroku,
+   Railway, or as a serverless function.  Make sure CORS is enabled (FastAPI
+   already allows `*`).  Note the base URL (e.g. `https://api.example.com`).
 3. **Deploy the frontend** to Vercel (or any static-host provider) using the
    normal build command (`npm run build`).
-4. In the frontend deployment settings set an environment variable
-   `VITE_API_BASE_URL` to the backend’s base URL if you are using the backend.
-   Vercel will automatically inject it into the build.
+4. If you also host the backend, set `VITE_API_BASE_URL` in the deployment
+   environment so the frontend can talk to it.  Otherwise the flag is ignored,
+   since the app never makes HTTP requests unless you explicitly re-enable
+   them.
 
 On localhost the app defaults to `http://localhost:8000`, so you can run both
 servers locally and they will talk to one another.

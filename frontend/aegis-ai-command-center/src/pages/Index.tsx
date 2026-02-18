@@ -8,7 +8,10 @@ import { GovernancePage } from '../components/dashboard/GovernancePage';
 import {
   MLMetrics, LLMMetrics, AlertItem,
   calcRiskScore,
-  SimulationFlags
+  SimulationFlags,
+  generateMLMetrics,
+  generateLLMMetrics,
+  generateAlerts,
 } from '../lib/metricsGenerator';
 
 type Page = 'overview' | 'ml' | 'llm' | 'governance';
@@ -39,47 +42,17 @@ export default function Index() {
   const flagsRef = useRef(flags);
   flagsRef.current = flags;
 
-  // hard‑coded example data for deployment (no network calls)
-  const STATIC_ML: MLMetrics = {
-    accuracy: 0.926,
-    precision: 0.908,
-    recall: 0.893,
-    f1: 0.900,
-    driftScore: 0.1,
-    biasScore: 0.05,
-    latencyMs: 82,
-    throughput: 780,
-    timestamp: new Date(),
-  };
-
-  const STATIC_LLM: LLMMetrics = {
-    latencyMs: 680,
-    tokenUsage: 420,
-    costUsd: 0.0105,
-    hallucinationRate: 0.02,
-    safetyFlag: false,
-    throughputRpm: 92,
-    contextLength: 2400,
-    timestamp: new Date(),
-  };
-
-  const STATIC_ALERTS: AlertItem[] = [
-    {
-      id: 'static-1',
-      type: 'info',
-      title: 'Demo Alert',
-      message: 'This is a hardcoded alert for deployment.',
-      timestamp: new Date(),
-      acknowledged: false,
-    },
-  ];
-
+  // simulation tick uses generator functions; flags drive behaviour
   const tick = useCallback(() => {
-    // simply push the static values (could also rotate or randomize)
-    setMlHistory(prev => [...prev.slice(-(MAX_HISTORY - 1)), { ...STATIC_ML, timestamp: new Date() }]);
-    setLlmHistory(prev => [...prev.slice(-(MAX_HISTORY - 1)), { ...STATIC_LLM, timestamp: new Date() }]);
+    const f = flagsRef.current;
+    const ml = generateMLMetrics(f);
+    const llm = generateLLMMetrics(f);
+    const newAlerts = generateAlerts(ml, llm);
+
+    setMlHistory(prev => [...prev.slice(-(MAX_HISTORY - 1)), ml]);
+    setLlmHistory(prev => [...prev.slice(-(MAX_HISTORY - 1)), llm]);
     setAlerts(prev => {
-      const combined = [...STATIC_ALERTS, ...prev].slice(0, 40);
+      const combined = [...newAlerts, ...prev].slice(0, 40);
       return combined;
     });
     setLastUpdate(new Date());
