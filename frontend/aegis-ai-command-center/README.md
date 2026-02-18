@@ -68,18 +68,18 @@ Frontend and backend must both be deployed; they communicate over the network.
 1. **Dynamic front‑end simulation** is the default behaviour: the app
    generates fresh, pseudo‑random ML/LLM telemetry every few seconds and
    responds to the four toggles in the sidebar (ML Drift, Hallucination,
-   High Token Cost, Safety Incident).  This gives the appearance of a
+   High Token Cost, Safety Incident). This gives the appearance of a
    production observability dashboard at all times without any network calls.
    The logic lives in `src/lib/metricsGenerator.ts` and is invoked from
    `Index.tsx`.
 2. **(Optional)** Deploy the Python backend only if you want a server‑side
-   analogue or wish to extend the risk engine.  It can run on a VPS, Heroku,
-   Railway, or as a serverless function.  Make sure CORS is enabled (FastAPI
-   already allows `*`).  Note the base URL (e.g. `https://api.example.com`).
+   analogue or wish to extend the risk engine. It can run on a VPS, Heroku,
+   Railway, or as a serverless function. Make sure CORS is enabled (FastAPI
+   already allows `*`). Note the base URL (e.g. `https://api.example.com`).
 3. **Deploy the frontend** to Vercel (or any static-host provider) using the
    normal build command (`npm run build`).
 4. If you also host the backend, set `VITE_API_BASE_URL` in the deployment
-   environment so the frontend can talk to it.  Otherwise the flag is ignored,
+   environment so the frontend can talk to it. Otherwise the flag is ignored,
    since the app never makes HTTP requests unless you explicitly re-enable
    them.
 
