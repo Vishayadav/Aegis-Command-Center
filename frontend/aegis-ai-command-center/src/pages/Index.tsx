@@ -39,36 +39,50 @@ export default function Index() {
   const flagsRef = useRef(flags);
   flagsRef.current = flags;
 
-  const tick = useCallback(async () => {
-    const f = flagsRef.current;
-    // call backend API for metrics
-    const params = new URLSearchParams({
-      triggerDrift: f.triggerDrift ? '1' : '0',
-      triggerHallucination: f.triggerHallucination ? '1' : '0',
-      triggerCost: f.triggerCost ? '1' : '0',
-      triggerSafety: f.triggerSafety ? '1' : '0',
+  // hard‑coded example data for deployment (no network calls)
+  const STATIC_ML: MLMetrics = {
+    accuracy: 0.926,
+    precision: 0.908,
+    recall: 0.893,
+    f1: 0.900,
+    driftScore: 0.1,
+    biasScore: 0.05,
+    latencyMs: 82,
+    throughput: 780,
+    timestamp: new Date(),
+  };
+
+  const STATIC_LLM: LLMMetrics = {
+    latencyMs: 680,
+    tokenUsage: 420,
+    costUsd: 0.0105,
+    hallucinationRate: 0.02,
+    safetyFlag: false,
+    throughputRpm: 92,
+    contextLength: 2400,
+    timestamp: new Date(),
+  };
+
+  const STATIC_ALERTS: AlertItem[] = [
+    {
+      id: 'static-1',
+      type: 'info',
+      title: 'Demo Alert',
+      message: 'This is a hardcoded alert for deployment.',
+      timestamp: new Date(),
+      acknowledged: false,
+    },
+  ];
+
+  const tick = useCallback(() => {
+    // simply push the static values (could also rotate or randomize)
+    setMlHistory(prev => [...prev.slice(-(MAX_HISTORY - 1)), { ...STATIC_ML, timestamp: new Date() }]);
+    setLlmHistory(prev => [...prev.slice(-(MAX_HISTORY - 1)), { ...STATIC_LLM, timestamp: new Date() }]);
+    setAlerts(prev => {
+      const combined = [...STATIC_ALERTS, ...prev].slice(0, 40);
+      return combined;
     });
-
-    try {
-      const resp = await fetch(`http://localhost:8000/api/tick?${params.toString()}`);
-      const data = await resp.json();
-      const ml: MLMetrics = { ...data.mlMetrics, timestamp: new Date(data.mlMetrics.timestamp) };
-      const llm: LLMMetrics = { ...data.llmMetrics, timestamp: new Date(data.llmMetrics.timestamp) };
-      const newAlerts: AlertItem[] = data.alerts.map((a: any) => ({
-        ...a,
-        timestamp: new Date(a.timestamp),
-      }));
-
-      setMlHistory(prev => [...prev.slice(-(MAX_HISTORY - 1)), ml]);
-      setLlmHistory(prev => [...prev.slice(-(MAX_HISTORY - 1)), llm]);
-      setAlerts(prev => {
-        const combined = [...newAlerts, ...prev].slice(0, 40);
-        return combined;
-      });
-      setLastUpdate(new Date());
-    } catch (err) {
-      console.error('tick fetch failed', err);
-    }
+    setLastUpdate(new Date());
   }, []);
 
   useEffect(() => {

@@ -1,8 +1,9 @@
-# Welcome to your Lovable project
+# Welcome to Aegis AI
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID  
+(when deploying you will need to configure the backend URL via an environment variable)
 
 ## How can I edit this code?
 
@@ -62,7 +63,31 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+Frontend and backend must both be deployed; they communicate over the network.
+
+1. **(Optional)** The frontend is capable of running entirely on its own
+   with hardcoded telemetry; no backend is required.  This is useful for
+   quick demos or when deploying to Vercel without an API.  See
+   `src/pages/Index.tsx` (static `STATIC_` constants).
+2. **Deploy the Python backend** somewhere reachable only if you want live
+   simulation or want to reuse the risk engine.
+   It can be hosted on a VPS, Heroku, Railway, or as a serverless function.
+   Make sure CORS is enabled (FastAPI already allows `*`).  Note the base URL
+   (for example `https://api.example.com`).
+3. **Deploy the frontend** to Vercel (or any static-host provider) using the
+   normal build command (`npm run build`).
+4. In the frontend deployment settings set an environment variable
+   `VITE_API_BASE_URL` to the backend’s base URL if you are using the backend.
+   Vercel will automatically inject it into the build.
+
+On localhost the app defaults to `http://localhost:8000`, so you can run both
+servers locally and they will talk to one another.
+
+If you don’t supply `VITE_API_BASE_URL` the frontend will continue to point at
+`localhost:8000`, which is why the production build showed empty telemetry.
+
+To update the title, logo, and other branding edit `index.html` and the
+`components/dashboard` files as needed.
 
 ## Can I connect a custom domain to my Lovable project?
 
